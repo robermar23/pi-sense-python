@@ -25,8 +25,8 @@ try:
     blue = (0, 0, 255)
 
     #iterate over nodes and get status of each
-    response = v1.list_node()
-    for node in response.items:
+    nodes = v1.list_node()
+    for node in nodes.items:
         #iterate
         col = 0
         for cond in node.status.conditions:
@@ -39,9 +39,48 @@ try:
                 if cond.status == "True":
                     sense.set_pixel(col, row, red)
                 else:
-                    sense.set_pixel(col,row, green)
+                    sense.set_pixel(col, row, green)
             col = col + 1
         row = row + 1
+
+    #row is at nodes + 1
+
+    #reset col
+    col = 0
+    #namespace = "media"
+    #v1beta1Api = client.ExtensionsV1beta1Api()
+    pods = v1.list_pod_for_all_namespaces()
+    for pod in pods.items:
+        
+        col = 0
+        if pod.metadata.name.startswith("transmission-transmission-openvpn"):
+            row = row + 1
+            for cond in pod.status.conditions:
+                if cond.status == "True":
+                    sense.set_pixel(col, row, green)
+                else:
+                    sense.set_pixel(col, row, red)
+                col = col + 1
+
+        if pod.metadata.name.startswith("sonarr"):
+            row = row + 1
+            for cond in pod.status.conditions:
+                if cond.status == "True":
+                    sense.set_pixel(col, row, green)
+                else:
+                    sense.set_pixel(col, row, red)
+                col = col + 1
+
+        if pod.metadata.name.startswith("radarr"):
+            row = row + 1
+            for cond in pod.status.conditions:
+                if cond.status == "True":
+                    sense.set_pixel(col, row, green)
+                else:
+                    sense.set_pixel(col, row, red)
+                col = col + 1
+
+    
 except Exception as e:
     sense.set_pixel(col,row, blue)
     print(e)
